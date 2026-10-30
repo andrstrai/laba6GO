@@ -74,7 +74,27 @@ func (r Rectangle) Perimeter() float64 { return 2*r.Height + 2*r.Width }
 func (r Rectangle) String() string {
 	return "ID: " + fmt.Sprint(r.ID) + ". Прямоугольник со сторонами: " + fmt.Sprint(r.Width) + " и " + fmt.Sprint(r.Height)
 }
-func (r *Rectangle) Change() {}
+func (r *Rectangle) Change() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Ввведите высоту прямоугольника:")
+	input1, _ := reader.ReadString('\n')
+	input1 = strings.TrimSpace(input1)
+	side1, err := strconv.ParseFloat(input1, 64)
+	if err != nil || side1 < 0 {
+		fmt.Println("Некорректный ввод! Пожалуйста, введите положительное число.")
+		return
+	}
+	fmt.Println("Ввведите ширину прямоугольника:")
+	input2, _ := reader.ReadString('\n')
+	input2 = strings.TrimSpace(input2)
+	side2, err := strconv.ParseFloat(input2, 64)
+	if err != nil || side2 < 0 {
+		fmt.Println("Некорректный ввод! Пожалуйста, введите положительное число.")
+		return
+	}
+	r.Height = side1
+	r.Width = side2
+}
 
 // Треугольник
 type Triangle struct {
@@ -177,6 +197,9 @@ func main() {
 				fmt.Println(err)
 				continue
 			}
+			clear_screen()
+			fmt.Println("Текущая фигура:")
+			fmt.Println(all_shapes[shapeIndex], "\n")
 			all_shapes[shapeIndex].Change()
 			fmt.Println("\nФигура после изменения:")
 			fmt.Println(all_shapes[shapeIndex])
