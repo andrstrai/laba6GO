@@ -28,6 +28,7 @@ type shape interface {
 	Area() float64
 	Perimeter() float64
 	String() string
+	Change()
 }
 
 // Круг
@@ -40,6 +41,20 @@ func (c Circle) Area() float64      { return math.Pi * math.Pow(c.radius, 2) }
 func (c Circle) Perimeter() float64 { return 2 * math.Pi * c.radius }
 func (c Circle) String() string     { return "Круг с радиусом = " + fmt.Sprint(c.radius) }
 
+// pointer receiver
+func (c *Circle) Change() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Ввведите новый радиус:")
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	radius, err := strconv.ParseFloat(input, 64)
+	if err != nil {
+		fmt.Println("Некорректный ввод! Пожалуйста, введите положительное число.")
+		return
+	}
+	c.radius = radius
+}
+
 // Прямоугольник
 type Rectangle struct {
 	Width, Height float64
@@ -50,6 +65,7 @@ func (r Rectangle) Perimeter() float64 { return 2*r.Height + 2*r.Width }
 func (r Rectangle) String() string {
 	return "Прямоугольник со сторонами: " + fmt.Sprint(r.Width) + " и " + fmt.Sprint(r.Height)
 }
+func (r *Rectangle) Change() {}
 
 // Треугольник
 type Triangle struct {
@@ -66,18 +82,19 @@ func (t Triangle) Area() float64 {
 func (t Triangle) String() string {
 	return fmt.Sprintf("Треугольник (стороны: %.2f, %.2f, %.2f)", t.A, t.B, t.C)
 }
+func (r *Triangle) Change() {}
 
 // Фабричные функции
 func NewCircle(radius float64) shape {
-	return Circle{radius: radius}
+	return &Circle{radius: radius}
 }
 
 func NewRectangle(width, height float64) shape {
-	return Rectangle{Width: width, Height: height}
+	return &Rectangle{Width: width, Height: height}
 }
 
 func NewTriangle(a, b, c float64) shape {
-	return Triangle{A: a, B: b, C: c}
+	return &Triangle{A: a, B: b, C: c}
 }
 
 // основная функция
@@ -114,6 +131,8 @@ func main() {
 			fmt.Println(circle)
 			fmt.Println(rectangle)
 			fmt.Println(triangle)
+		case 2:
+			circle.Change()
 		default:
 			fmt.Println("Нет такого пункта меню!")
 		}
