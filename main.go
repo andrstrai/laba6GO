@@ -79,27 +79,34 @@ func (r *Rectangle) Change() {
 	fmt.Println("Ввведите высоту прямоугольника:")
 	input1, _ := reader.ReadString('\n')
 	input1 = strings.TrimSpace(input1)
-	side1, err := strconv.ParseFloat(input1, 64)
-	if err != nil || side1 < 0 {
+	side1, err1 := strconv.ParseFloat(input1, 64)
+	if err1 != nil || side1 < 0 {
 		fmt.Println("Некорректный ввод! Пожалуйста, введите положительное число.")
 		return
 	}
 	fmt.Println("Ввведите ширину прямоугольника:")
 	input2, _ := reader.ReadString('\n')
 	input2 = strings.TrimSpace(input2)
-	side2, err := strconv.ParseFloat(input2, 64)
-	if err != nil || side2 < 0 {
+	side2, err2 := strconv.ParseFloat(input2, 64)
+	if err2 != nil || side2 < 0 {
 		fmt.Println("Некорректный ввод! Пожалуйста, введите положительное число.")
 		return
 	}
-	r.Height = side1
-	r.Width = side2
+	r.Width = side1
+	r.Height = side2
 }
 
 // Треугольник
 type Triangle struct {
 	ID      uint
 	A, B, C float64 // Длины сторон
+}
+
+func exists(A float64, B float64, C float64) bool {
+	maxi := max(A, B, C)
+	mini := min(A, B, C)
+	mid := A + B + C - mini - maxi
+	return maxi < mini+mid && !floatEqual(maxi, mini+mid)
 }
 
 func (t Triangle) ReturnID() uint     { return t.ID }
@@ -113,7 +120,40 @@ func (t Triangle) Area() float64 {
 func (t Triangle) String() string {
 	return fmt.Sprintf("ID: %d. Треугольник (стороны: %.2f, %.2f, %.2f)", t.ID, t.A, t.B, t.C)
 }
-func (r *Triangle) Change() {}
+func (t *Triangle) Change() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Ввведите первую новую сторону треугольника:")
+	input1, _ := reader.ReadString('\n')
+	input1 = strings.TrimSpace(input1)
+	side1, err1 := strconv.ParseFloat(input1, 64)
+	if err1 != nil || side1 < 0 {
+		fmt.Println("Некорректный ввод! Пожалуйста, введите положительное число.")
+		return
+	}
+	fmt.Println("Ввведите вторую новую сторону треугольника:")
+	input2, _ := reader.ReadString('\n')
+	input2 = strings.TrimSpace(input2)
+	side2, err2 := strconv.ParseFloat(input2, 64)
+	if err2 != nil || side2 < 0 {
+		fmt.Println("Некорректный ввод! Пожалуйста, введите положительное число.")
+		return
+	}
+	fmt.Println("Ввведите третью новую сторону треугольника:")
+	input3, _ := reader.ReadString('\n')
+	input3 = strings.TrimSpace(input3)
+	side3, err3 := strconv.ParseFloat(input3, 64)
+	if err3 != nil || side3 < 0 {
+		fmt.Println("Некорректный ввод! Пожалуйста, введите положительное число.")
+		return
+	}
+	if !exists(side1, side2, side3) {
+		fmt.Println("Треугольника не существует!")
+		return
+	}
+	t.A = side1
+	t.B = side2
+	t.C = side3
+}
 
 // Фабричные функции
 func NewCircle(radius float64) shape {
@@ -149,6 +189,13 @@ func PrintAll(shapes []shape) {
 	}
 }
 
+func floatEqual(a, b float64) bool {
+	const eps = 1e-9
+	diff := math.Abs(a - b)
+	scale := math.Max(math.Abs(a), math.Abs(b))
+	return diff <= eps*math.Max(1, scale)
+}
+
 // основная функция
 func main() {
 	// Создание фигур через фабричные функции
@@ -163,6 +210,7 @@ func main() {
 		fmt.Println("Меню команд:")
 		fmt.Println("1 - Показать все фигуры")
 		fmt.Println("2 - Изменить фигуру")
+		fmt.Println("0 - Завершить работу")
 		fmt.Println("Выберите пункт из меню управления: ")
 
 		input, _ := reader.ReadString('\n')
