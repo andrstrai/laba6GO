@@ -31,15 +31,20 @@ type shape interface {
 	Change()
 }
 
+var CURR_ID uint = 0
+
 // Круг
 type Circle struct {
+	ID     uint
 	radius float64
 }
 
 // используется value receiver
 func (c Circle) Area() float64      { return math.Pi * math.Pow(c.radius, 2) }
 func (c Circle) Perimeter() float64 { return 2 * math.Pi * c.radius }
-func (c Circle) String() string     { return "Круг с радиусом = " + fmt.Sprint(c.radius) }
+func (c Circle) String() string {
+	return "ID: " + fmt.Sprint(c.ID) + ". Круг с радиусом = " + fmt.Sprint(c.radius)
+}
 
 // pointer receiver
 func (c *Circle) Change() {
@@ -57,18 +62,20 @@ func (c *Circle) Change() {
 
 // Прямоугольник
 type Rectangle struct {
+	ID            uint
 	Width, Height float64
 }
 
 func (r Rectangle) Area() float64      { return r.Height * r.Width }
 func (r Rectangle) Perimeter() float64 { return 2*r.Height + 2*r.Width }
 func (r Rectangle) String() string {
-	return "Прямоугольник со сторонами: " + fmt.Sprint(r.Width) + " и " + fmt.Sprint(r.Height)
+	return "ID: " + fmt.Sprint(r.ID) + ". Прямоугольник со сторонами: " + fmt.Sprint(r.Width) + " и " + fmt.Sprint(r.Height)
 }
 func (r *Rectangle) Change() {}
 
 // Треугольник
 type Triangle struct {
+	ID      uint
 	A, B, C float64 // Длины сторон
 }
 
@@ -80,29 +87,30 @@ func (t Triangle) Area() float64 {
 	return math.Sqrt(p * (p - t.A) * (p - t.B) * (p - t.C))
 }
 func (t Triangle) String() string {
-	return fmt.Sprintf("Треугольник (стороны: %.2f, %.2f, %.2f)", t.A, t.B, t.C)
+	return fmt.Sprintf("ID: %d. Треугольник (стороны: %.2f, %.2f, %.2f)", t.ID, t.A, t.B, t.C)
 }
 func (r *Triangle) Change() {}
 
 // Фабричные функции
 func NewCircle(radius float64) shape {
-	return &Circle{radius: radius}
+	CURR_ID++
+	return &Circle{ID: CURR_ID, radius: radius}
 }
 
 func NewRectangle(width, height float64) shape {
-	return &Rectangle{Width: width, Height: height}
+	CURR_ID++
+	return &Rectangle{ID: CURR_ID, Width: width, Height: height}
 }
 
 func NewTriangle(a, b, c float64) shape {
-	return &Triangle{A: a, B: b, C: c}
+	CURR_ID++
+	return &Triangle{ID: CURR_ID, A: a, B: b, C: c}
 }
 
 // основная функция
 func main() {
 	// Создание фигур через фабричные функции
-	circle := NewCircle(5)
-	rectangle := NewRectangle(4, 6)
-	triangle := NewTriangle(3, 4, 5)
+	all_shapes := []shape{NewCircle(5), NewRectangle(4, 6), NewTriangle(3, 4, 5)}
 
 	reader := bufio.NewReader(os.Stdin)
 	for {
@@ -112,6 +120,7 @@ func main() {
 
 		fmt.Println("Меню команд:")
 		fmt.Println("1 - Показать все фигуры")
+		fmt.Println("2 - Изменить фигуру")
 		fmt.Println("Выберите пункт из меню управления: ")
 
 		input, _ := reader.ReadString('\n')
@@ -128,11 +137,11 @@ func main() {
 			return
 		case 1:
 			fmt.Println("Все фигуры:")
-			fmt.Println(circle)
-			fmt.Println(rectangle)
-			fmt.Println(triangle)
+			for _, sh := range all_shapes {
+				fmt.Println(sh)
+			}
 		case 2:
-			circle.Change()
+			all_shapes[0].Change()
 		default:
 			fmt.Println("Нет такого пункта меню!")
 		}
